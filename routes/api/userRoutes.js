@@ -1,5 +1,15 @@
 const router = require('express').Router();
 
 const {
-    //route names imported for user go here
+    getUsers,
+    createUser,
+    deleteUser,
+    getSingleUser,
+    updateUser,
 } = require('../../controllers/userController')
+
+router.route('/').get(getUsers).post(createUser);
+
+router.route('/:userId').get(getSingleUser).delete(deleteUser).put(updateUser);
+
+module.exports = router;
