@@ -1,4 +1,3 @@
-//user routes go here.
 const { User } = require("../models");
 
 module.exports = {
@@ -13,20 +12,21 @@ module.exports = {
     }
   },
 
-  async getSingleUser(req,res) {
+  async getSingleUser(req, res) {
     try {
-        const user = await User.findOne({_id: req.params.userId})
+      const user = await User.findOne({ _id: req.params.userId })
+      .select('-__v')
+      .populate('thoughts');
 
-        if(!user) {
-            return res.status(404).json({ message: 'No user exists with that ID'})
-        }
+      if (!user) {
+        return res.status(404).json({ message: "No user exists with that ID" });
+      }
 
-        res.json({user})
+      res.json({ user });
     } catch (err) {
-        console.log(err);
-        return res.status(500).json(err)
+      console.log(err);
+      return res.status(500).json(err);
     }
-
   },
 
   async createUser(req, res) {
@@ -55,10 +55,9 @@ module.exports = {
   async updateUser(req, res) {
     try {
       const { userId } = req.params;
-      const updatedUser = await User.findOneAndUpdate(
-        { _id: userId },
-        req.body,
-        { new: true });
+      const updatedUser = await User.findOneAndUpdate({ _id: userId }, req.body, {
+        new: true,
+      });
 
       if (!updatedUser) {
         return res.status(404).json({ message: "That user doesn't exist" });
@@ -66,6 +65,42 @@ module.exports = {
       res.json({ message: "User successfully updated" });
     } catch (err) {
       console.log(err);
+      res.status(500).json(err);
+    }
+  },
+
+  async addFriend(req, res) {
+    try {
+      const friend = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $push: { friends: req.params.friendId } },
+        { new: true }
+      );
+
+      if (!friend) {
+        return res.status(404).json({ message: "No user with this id" });
+      }
+
+      res.json(friend);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+
+  async deleteFriend(req, res) {
+    try {
+      const friend = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { friends: req.params.friendId } },
+        { new: true, runValidators: true }
+      );
+
+      if (!friend) {
+        return res.status(404).json({ message: "No user with this id" });
+      }
+
+      res.json(friend);
+    } catch (err) {
       res.status(500).json(err);
     }
   },
