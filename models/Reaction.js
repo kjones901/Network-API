@@ -1,7 +1,8 @@
-const {Schema} = require('mongoose')
-const dateFormat = require('../utils/dateformat');
+const { Schema } = require("mongoose");
+const dateFormat = require("../utils/dateformat");
 
-const reactionSchema = new Schema({
+const reactionSchema = new Schema(
+  {
     reactionId: {
       type: Schema.Types.ObjectId,
       default: () => new Types.ObjectId(),
@@ -18,8 +19,17 @@ const reactionSchema = new Schema({
     createdAt: {
       type: Date,
       default: Date.now,
-      get: createdAtVal => dateFormat(createdAtVal)
+      get: (date) => {
+        if (date) return date.toLocaleDateString();
+      },
     },
-  });
+  },
+  {
+    toJSON: {
+      getters: true,
+    },
+    id: false,
+  }
+);
 
-  module.exports = reactionSchema
+module.exports = reactionSchema;
